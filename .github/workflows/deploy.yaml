@@ -1,0 +1,28 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Login to ACR
+        run: az acr login --name ${{ secrets.REGISTRY_NAME }}
+      
+      - name: Build and push image
+        run: |
+          docker build -t ${{ secrets.REGISTRY_NAME }}.azurecr.io/distilbert-imdb:${{ github.sha }} .
+          docker build -t ${{ secrets.REGISTRY_NAME }}.azurecr.io/distilbert-imdb:latest .
+          docker push ${{ secrets.REGISTRY_NAME }}.azurecr.io/distilbert-imdb:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_NAME }}.azurecr.io/distilbert-imdb:latest

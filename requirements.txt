@@ -1,0 +1,4 @@
+transformers
+tensorflow
+flask
+uvicorn
